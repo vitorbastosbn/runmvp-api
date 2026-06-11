@@ -86,6 +86,12 @@
             <artifactId>google-auth-library-oauth2-http</artifactId>
             <version>${google-auth.version}</version>
         </dependency>
+        <!-- GoogleIdTokenVerifier lives here, not in google-auth-library -->
+        <dependency>
+            <groupId>com.google.api-client</groupId>
+            <artifactId>google-api-client</artifactId>
+            <version>2.7.2</version>
+        </dependency>
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
