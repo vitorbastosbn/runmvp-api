@@ -1,0 +1,11 @@
+spring:
+  flyway:
+    enabled: true
+
+app:
+  jwt:
+    secret: dGVzdC1zZWNyZXQtY2hhdmUtcGFyYS10ZXN0ZXMtbG9uZ2Etc3VmaWNpZW50ZS0zMmJ5dGVz
+    access-token-expiration-seconds: 900
+    refresh-token-expiration-days: 30
+  google:
+    client-id: test-google-client-id
