@@ -15,21 +15,13 @@ class EntitlementAdapter implements EntitlementPort {
     @Override
     public Entitlement getEffectiveEntitlement(Long userId) {
         String sql = """
-            SELECT entitlement FROM subscriptions
+            SELECT COUNT(*) FROM subscriptions
             WHERE user_id = ?
+              AND expires_at > now()
               AND (status IN ('ACTIVE', 'GRACE_PERIOD')
                OR (status = 'CANCELLED' AND expires_at > now()))
-            ORDER BY updated_at DESC
-            LIMIT 1
             """;
-        return jdbc.query(sql, rs -> {
-            if (rs.next()) {
-                String val = rs.getString("entitlement");
-                return "PREMIUM_ACTIVE".equals(val)
-                    ? Entitlement.PREMIUM_ACTIVE
-                    : Entitlement.FREE;
-            }
-            return Entitlement.FREE;
-        }, userId);
+        Integer count = jdbc.queryForObject(sql, Integer.class, userId);
+        return (count != null && count > 0) ? Entitlement.PREMIUM_ACTIVE : Entitlement.FREE;
     }
 }

@@ -24,6 +24,11 @@ app:
   google:
     client-id: ${GOOGLE_CLIENT_ID}
 
+google:
+  play:
+    package-name: ${GOOGLE_PLAY_PACKAGE_NAME:com.runmvp.app}
+    credentials-path: ${GOOGLE_APPLICATION_CREDENTIALS:}
+
 server:
   servlet:
     context-path: /api/v1
