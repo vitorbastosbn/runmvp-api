@@ -2,6 +2,7 @@ package com.runmvp.session.adapter.in.web;
 
 import com.runmvp.session.application.port.in.*;
 import com.runmvp.session.domain.RunningSession;
+import com.runmvp.shared.entitlement.EntitlementPort;
 import com.runmvp.shared.security.AuthenticatedUser;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -25,6 +26,9 @@ public class SessionController {
     private final CancelSessionUseCase cancelSession;
     private final AbandonSessionUseCase abandonSession;
     private final SyncGpsActivityUseCase syncGpsActivity;
+    private final FinishSessionUseCase finishSession;
+    private final GetSessionResultUseCase getSessionResult;
+    private final EntitlementPort entitlementPort;
 
     public SessionController(CreateSessionUseCase createSession,
                              InviteToSessionUseCase inviteToSession,
@@ -34,7 +38,10 @@ public class SessionController {
                              StartSessionUseCase startSession,
                              CancelSessionUseCase cancelSession,
                              AbandonSessionUseCase abandonSession,
-                             SyncGpsActivityUseCase syncGpsActivity) {
+                             SyncGpsActivityUseCase syncGpsActivity,
+                             FinishSessionUseCase finishSession,
+                             GetSessionResultUseCase getSessionResult,
+                             EntitlementPort entitlementPort) {
         this.createSession = createSession;
         this.inviteToSession = inviteToSession;
         this.acceptInvite = acceptInvite;
@@ -44,6 +51,9 @@ public class SessionController {
         this.cancelSession = cancelSession;
         this.abandonSession = abandonSession;
         this.syncGpsActivity = syncGpsActivity;
+        this.finishSession = finishSession;
+        this.getSessionResult = getSessionResult;
+        this.entitlementPort = entitlementPort;
     }
 
     @PostMapping
@@ -133,6 +143,25 @@ public class SessionController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/{id}/finish")
+    public ResponseEntity<Void> finish(
+            @AuthenticationPrincipal AuthenticatedUser p,
+            @PathVariable Long id,
+            @Valid @RequestBody FinishRequest req) {
+        finishSession.execute(new FinishSessionUseCase.Command(
+            id, p.userId(), req.distanceMeters(), req.runningTimeSeconds()));
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{id}/result")
+    public ResponseEntity<SessionResultResponse> result(
+            @AuthenticationPrincipal AuthenticatedUser p,
+            @PathVariable Long id) {
+        var entitlement = entitlementPort.getEffectiveEntitlement(p.userId());
+        var result = getSessionResult.execute(id, p.userId(), entitlement);
+        return ResponseEntity.ok(SessionResultResponse.from(result));
+    }
+
     record CreateSessionRequest(
         @NotNull String mode,
         Long targetDistanceMeters,
@@ -141,4 +170,6 @@ public class SessionController {
     ) {}
 
     record CreateSessionResponse(Long sessionId) {}
+
+    record FinishRequest(long distanceMeters, long runningTimeSeconds) {}
 }
