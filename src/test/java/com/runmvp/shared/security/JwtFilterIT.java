@@ -38,7 +38,7 @@ class JwtFilterIT extends BaseIntegrationTest {
             String.class
         );
 
-        assertThat(response.getStatusCode()).isNotEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test
