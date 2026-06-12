@@ -24,6 +24,7 @@ public class SessionController {
     private final StartSessionUseCase startSession;
     private final CancelSessionUseCase cancelSession;
     private final AbandonSessionUseCase abandonSession;
+    private final SyncGpsActivityUseCase syncGpsActivity;
 
     public SessionController(CreateSessionUseCase createSession,
                              InviteToSessionUseCase inviteToSession,
@@ -32,7 +33,8 @@ public class SessionController {
                              MarkReadyUseCase markReady,
                              StartSessionUseCase startSession,
                              CancelSessionUseCase cancelSession,
-                             AbandonSessionUseCase abandonSession) {
+                             AbandonSessionUseCase abandonSession,
+                             SyncGpsActivityUseCase syncGpsActivity) {
         this.createSession = createSession;
         this.inviteToSession = inviteToSession;
         this.acceptInvite = acceptInvite;
@@ -41,6 +43,7 @@ public class SessionController {
         this.startSession = startSession;
         this.cancelSession = cancelSession;
         this.abandonSession = abandonSession;
+        this.syncGpsActivity = syncGpsActivity;
     }
 
     @PostMapping
@@ -111,6 +114,22 @@ public class SessionController {
             @AuthenticationPrincipal AuthenticatedUser p,
             @PathVariable Long id) {
         abandonSession.execute(id, p.userId());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{id}/activity")
+    public ResponseEntity<Void> activity(
+            @AuthenticationPrincipal AuthenticatedUser p,
+            @PathVariable Long id,
+            @Valid @RequestBody ActivityRequest req) {
+        syncGpsActivity.execute(new SyncGpsActivityUseCase.Command(
+            id, p.userId(),
+            req.points().stream()
+                .map(pt -> new SyncGpsActivityUseCase.GpsPoint(
+                    pt.sequence(), pt.latitude(), pt.longitude(),
+                    pt.accuracyMeters(), pt.speedMps(), pt.isMocked(), pt.capturedAt()))
+                .toList()
+        ));
         return ResponseEntity.ok().build();
     }
 
