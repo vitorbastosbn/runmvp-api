@@ -20,15 +20,27 @@ public class SessionController {
     private final InviteToSessionUseCase inviteToSession;
     private final AcceptSessionInviteUseCase acceptInvite;
     private final DeclineSessionInviteUseCase declineInvite;
+    private final MarkReadyUseCase markReady;
+    private final StartSessionUseCase startSession;
+    private final CancelSessionUseCase cancelSession;
+    private final AbandonSessionUseCase abandonSession;
 
     public SessionController(CreateSessionUseCase createSession,
                              InviteToSessionUseCase inviteToSession,
                              AcceptSessionInviteUseCase acceptInvite,
-                             DeclineSessionInviteUseCase declineInvite) {
+                             DeclineSessionInviteUseCase declineInvite,
+                             MarkReadyUseCase markReady,
+                             StartSessionUseCase startSession,
+                             CancelSessionUseCase cancelSession,
+                             AbandonSessionUseCase abandonSession) {
         this.createSession = createSession;
         this.inviteToSession = inviteToSession;
         this.acceptInvite = acceptInvite;
         this.declineInvite = declineInvite;
+        this.markReady = markReady;
+        this.startSession = startSession;
+        this.cancelSession = cancelSession;
+        this.abandonSession = abandonSession;
     }
 
     @PostMapping
@@ -67,6 +79,38 @@ public class SessionController {
             @AuthenticationPrincipal AuthenticatedUser p,
             @PathVariable Long id) {
         declineInvite.execute(id, p.userId());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{id}/ready")
+    public ResponseEntity<Void> ready(
+            @AuthenticationPrincipal AuthenticatedUser p,
+            @PathVariable Long id) {
+        markReady.execute(id, p.userId());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{id}/start")
+    public ResponseEntity<Void> start(
+            @AuthenticationPrincipal AuthenticatedUser p,
+            @PathVariable Long id) {
+        startSession.execute(id, p.userId());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{id}/cancel")
+    public ResponseEntity<Void> cancel(
+            @AuthenticationPrincipal AuthenticatedUser p,
+            @PathVariable Long id) {
+        cancelSession.execute(id, p.userId());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{id}/abandon")
+    public ResponseEntity<Void> abandon(
+            @AuthenticationPrincipal AuthenticatedUser p,
+            @PathVariable Long id) {
+        abandonSession.execute(id, p.userId());
         return ResponseEntity.ok().build();
     }
 
