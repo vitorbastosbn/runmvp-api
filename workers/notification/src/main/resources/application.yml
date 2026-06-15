@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/runmvp}
+    username: ${DB_USERNAME:runmvp}
+    password: ${DB_PASSWORD:runmvp}
+    driver-class-name: org.postgresql.Driver
+  main:
+    web-application-type: none
+
+worker:
+  notification:
+    poll-interval-ms: 5000
+
+fcm:
+  project-id: ${FCM_PROJECT_ID:runmvp-b1052}
+  credentials-path: ${GOOGLE_APPLICATION_CREDENTIALS:}

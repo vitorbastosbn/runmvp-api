@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/runmvp}
+    username: ${DB_USERNAME:runmvp}
+    password: ${DB_PASSWORD:runmvp}
+    driver-class-name: org.postgresql.Driver
+  main:
+    web-application-type: none
+
+worker:
+  data-retention:
+    incremental-poll-ms: 60000
+    outbox-retention-days: 7
+    location-points-retention-days: 90
+    billing-events-retention-days: 180
