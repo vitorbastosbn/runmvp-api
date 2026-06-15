@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/runmvp}
+    username: ${DB_USERNAME:runmvp}
+    password: ${DB_PASSWORD:runmvp}
+    driver-class-name: org.postgresql.Driver
+  main:
+    web-application-type: none
+
+worker:
+  subscription:
+    expiry-poll-ms: 10000
+    reconciliation-interval-ms: 21600000
+
+google:
+  play:
+    package-name: ${GOOGLE_PLAY_PACKAGE_NAME:com.runmvp}
+    credentials-path: ${GOOGLE_APPLICATION_CREDENTIALS:}

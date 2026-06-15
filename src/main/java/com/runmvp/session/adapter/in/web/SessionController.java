@@ -27,6 +27,7 @@ public class SessionController {
     private final AbandonSessionUseCase abandonSession;
     private final SyncGpsActivityUseCase syncGpsActivity;
     private final FinishSessionUseCase finishSession;
+    private final GetSessionStateUseCase getSessionState;
     private final GetSessionResultUseCase getSessionResult;
     private final EntitlementPort entitlementPort;
 
@@ -40,6 +41,7 @@ public class SessionController {
                              AbandonSessionUseCase abandonSession,
                              SyncGpsActivityUseCase syncGpsActivity,
                              FinishSessionUseCase finishSession,
+                             GetSessionStateUseCase getSessionState,
                              GetSessionResultUseCase getSessionResult,
                              EntitlementPort entitlementPort) {
         this.createSession = createSession;
@@ -52,6 +54,7 @@ public class SessionController {
         this.abandonSession = abandonSession;
         this.syncGpsActivity = syncGpsActivity;
         this.finishSession = finishSession;
+        this.getSessionState = getSessionState;
         this.getSessionResult = getSessionResult;
         this.entitlementPort = entitlementPort;
     }
@@ -151,6 +154,13 @@ public class SessionController {
         finishSession.execute(new FinishSessionUseCase.Command(
             id, p.userId(), req.distanceMeters(), req.runningTimeSeconds()));
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<SessionStateResponse> state(
+            @AuthenticationPrincipal AuthenticatedUser p,
+            @PathVariable Long id) {
+        return ResponseEntity.ok(SessionStateResponse.from(getSessionState.execute(id, p.userId())));
     }
 
     @GetMapping("/{id}/result")
